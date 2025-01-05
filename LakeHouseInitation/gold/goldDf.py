@@ -66,17 +66,21 @@ dim_death_cause = df_silver_3.select(
 dim_death_cause.printSchema()
 
 # Chemins pour sauvegarder les données dans le stockage Gold
-fact_alcohol_consumption_gdp_path = "/mnt/gold/fact_alcohol_consumption_gdp"
-fact_happiness_alcohol_consumption_path = "/mnt/gold/fact_happiness_alcohol_consumption"
-fact_alcohol_specific_deaths_path = "/mnt/gold/fact_alcohol_specific_deaths"
-dim_country_path = "/mnt/gold/dim_country"
-dim_year_path = "/mnt/gold/dim_year"
-dim_death_cause_path = "/mnt/gold/dim_death_cause"
+fact_alcohol_consumption_gdp_path = "/mnt/conteneurmarioabjmb/gold/fact_alcohol_consumption_gdp"
+fact_happiness_alcohol_consumption_path = "/conteneurmarioabjmb/mnt/gold/fact_happiness_alcohol_consumption"
+fact_alcohol_specific_deaths_path = "/mnt/conteneurmarioabjmb/gold/fact_alcohol_specific_deaths"
+dim_country_path = "/mnt/conteneurmarioabjmb/gold/dim_country"
+dim_year_path = "/mnt/conteneurmarioabjmb/gold/dim_year"
+dim_death_cause_path = "/mnt/conteneurmarioabjmb/gold/dim_death_cause"
 
 # Sauvegarde des tables dans le stockage Gold au format Delta
-fact_alcohol_consumption_gdp.write.format("delta").mode("overwrite").save(fact_alcohol_consumption_gdp_path)
-fact_happiness_alcohol_consumption.write.format("delta").mode("overwrite").save(fact_happiness_alcohol_consumption_path)
-fact_alcohol_specific_deaths.write.format("delta").mode("overwrite").save(fact_alcohol_specific_deaths_path)
+fact_alcohol_consumption_gdp.write.format("delta").mode(
+    "overwrite").save(fact_alcohol_consumption_gdp_path)
+fact_happiness_alcohol_consumption.write.format("delta").mode(
+    "overwrite").save(fact_happiness_alcohol_consumption_path)
+fact_alcohol_specific_deaths.write.format("delta").mode(
+    "overwrite").save(fact_alcohol_specific_deaths_path)
 dim_country.write.format("delta").mode("overwrite").save(dim_country_path)
 dim_year.write.format("delta").mode("overwrite").save(dim_year_path)
-dim_death_cause.write.format("delta").mode("overwrite").save(dim_death_cause_path)
+dim_death_cause.write.format("delta").mode(
+    "overwrite").save(dim_death_cause_path)

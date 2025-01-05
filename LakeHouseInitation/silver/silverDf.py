@@ -1,12 +1,12 @@
 # Chemins pour sauvegarder les fichiers dans la couche Bronze
-bronze_output_path_1 = "/mnt/bronze/alcohol_consumption_gdp"
-bronze_output_path_2 = "/mnt/bronze/happiness_alcohol_consumption"
-bronze_output_path_3 = "/mnt/bronze/alcohol_specific_deaths"
+bronze_output_path_1 = "/mnt/conteneurmarioabjmb/bronze/alcohol_consumption_gdp"
+bronze_output_path_2 = "/mnt/conteneurmarioabjmb/bronze/happiness_alcohol_consumption"
+bronze_output_path_3 = "/mnt/conteneurmarioabjmb/bronze/alcohol_specific_deaths"
 
 # Définir les chemins de la couche Silver
-silver_output_path_1 = "/mnt/silver/alcohol_consumption_gdp"
-silver_output_path_2 = "/mnt/silver/happiness_alcohol_consumption"
-silver_output_path_3 = "/mnt/silver/alcohol_specific_deaths"
+silver_output_path_1 = "/mnt/conteneurmarioabjmb/silver/alcohol_consumption_gdp"
+silver_output_path_2 = "/mnt/conteneurmarioabjmb/silver/happiness_alcohol_consumption"
+silver_output_path_3 = "/mnt/conteneurmarioabjmb/silver/alcohol_specific_deaths"
 
 # Lire et transformer pour df_bronze_1
 df_bronze_1 = spark.read.format("delta").load(bronze_output_path_1)
@@ -32,7 +32,8 @@ df_silver_1 = df_silver_1.filter(
 df_silver_1 = df_silver_1.dropDuplicates()
 
 # Sauvegarde dans la couche Silver avec partitionnement par année
-df_silver_1.write.format("delta").mode("overwrite").partitionBy("year").save(silver_output_path_1)
+df_silver_1.write.format("delta").mode(
+    "overwrite").partitionBy("year").save(silver_output_path_1)
 
 
 # Lire les données de la couche Bronze
