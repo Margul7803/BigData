@@ -65,22 +65,22 @@ dim_death_cause = df_silver_3.select(
 ).distinct()
 dim_death_cause.printSchema()
 
-# Chemins pour sauvegarder les données dans le stockage Gold
-fact_alcohol_consumption_gdp_path = "/mnt/conteneurmarioabjmb/gold/fact_alcohol_consumption_gdp"
-fact_happiness_alcohol_consumption_path = "/conteneurmarioabjmb/mnt/gold/fact_happiness_alcohol_consumption"
-fact_alcohol_specific_deaths_path = "/mnt/conteneurmarioabjmb/gold/fact_alcohol_specific_deaths"
-dim_country_path = "/mnt/conteneurmarioabjmb/gold/dim_country"
-dim_year_path = "/mnt/conteneurmarioabjmb/gold/dim_year"
-dim_death_cause_path = "/mnt/conteneurmarioabjmb/gold/dim_death_cause"
+# Chemins pour sauvegarder les données dans le stockage Gold sous Iceberg
+fact_alcohol_consumption_gdp_path = "spark_catalog.db_name.gold_fact_alcohol_consumption_gdp"
+fact_happiness_alcohol_consumption_path = "spark_catalog.db_name.gold_fact_happiness_alcohol_consumption"
+fact_alcohol_specific_deaths_path = "spark_catalog.db_name.gold_fact_alcohol_specific_deaths"
+dim_country_path = "spark_catalog.db_name.gold_dim_country"
+dim_year_path = "spark_catalog.db_name.gold_dim_year"
+dim_death_cause_path = "spark_catalog.db_name.gold_dim_death_cause"
 
-# Sauvegarde des tables dans le stockage Gold au format Delta
-fact_alcohol_consumption_gdp.write.format("delta").mode(
-    "overwrite").save(fact_alcohol_consumption_gdp_path)
-fact_happiness_alcohol_consumption.write.format("delta").mode(
-    "overwrite").save(fact_happiness_alcohol_consumption_path)
-fact_alcohol_specific_deaths.write.format("delta").mode(
-    "overwrite").save(fact_alcohol_specific_deaths_path)
-dim_country.write.format("delta").mode("overwrite").save(dim_country_path)
-dim_year.write.format("delta").mode("overwrite").save(dim_year_path)
-dim_death_cause.write.format("delta").mode(
-    "overwrite").save(dim_death_cause_path)
+# Sauvegarde des tables dans le stockage Gold au format Iceberg
+fact_alcohol_consumption_gdp.writeTo(
+    fact_alcohol_consumption_gdp_path).using("iceberg").createOrReplace()
+fact_happiness_alcohol_consumption.writeTo(
+    fact_happiness_alcohol_consumption_path).using("iceberg").createOrReplace()
+fact_alcohol_specific_deaths.writeTo(
+    fact_alcohol_specific_deaths_path).using("iceberg").createOrReplace()
+dim_country.writeTo(dim_country_path).using("iceberg").createOrReplace()
+dim_year.writeTo(dim_year_path).using("iceberg").createOrReplace()
+dim_death_cause.writeTo(dim_death_cause_path).using(
+    "iceberg").createOrReplace()

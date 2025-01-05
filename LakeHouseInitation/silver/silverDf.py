@@ -1,15 +1,26 @@
-# Chemins pour sauvegarder les fichiers dans la couche Bronze
-bronze_output_path_1 = "/mnt/conteneurmarioabjmb/bronze/alcohol_consumption_gdp"
-bronze_output_path_2 = "/mnt/conteneurmarioabjmb/bronze/happiness_alcohol_consumption"
-bronze_output_path_3 = "/mnt/conteneurmarioabjmb/bronze/alcohol_specific_deaths"
+from pyspark.sql import SparkSession
+import re
 
-# Définir les chemins de la couche Silver
-silver_output_path_1 = "/mnt/conteneurmarioabjmb/silver/alcohol_consumption_gdp"
-silver_output_path_2 = "/mnt/conteneurmarioabjmb/silver/happiness_alcohol_consumption"
-silver_output_path_3 = "/mnt/conteneurmarioabjmb/silver/alcohol_specific_deaths"
+# Fonction pour nettoyer les noms de colonnes
+
+
+def clean_column_names_auto(df):
+    new_columns = [re.sub(r'[ ,;{}()\n\t=]', '_', col) for col in df.columns]
+    return df.toDF(*new_columns)
+
+
+# Chemins pour sauvegarder les fichiers dans la couche Bronze sous Iceberg
+bronze_output_path_1 = "spark_catalog.db_name.bronze_alcohol_consumption_gdp"
+bronze_output_path_2 = "spark_catalog.db_name.bronze_happiness_alcohol_consumption"
+bronze_output_path_3 = "spark_catalog.db_name.bronze_alcohol_specific_deaths"
+
+# Chemins pour sauvegarder les fichiers dans la couche Silver sous Iceberg
+silver_output_path_1 = "spark_catalog.db_name.silver_alcohol_consumption_gdp"
+silver_output_path_2 = "spark_catalog.db_name.silver_happiness_alcohol_consumption"
+silver_output_path_3 = "spark_catalog.db_name.silver_alcohol_specific_deaths"
 
 # Lire et transformer pour df_bronze_1
-df_bronze_1 = spark.read.format("delta").load(bronze_output_path_1)
+df_bronze_1 = spark.read.format("iceberg").load(bronze_output_path_1)
 
 df_silver_1 = df_bronze_1 \
     .withColumnRenamed("Entity", "country_name") \
@@ -31,13 +42,12 @@ df_silver_1 = df_silver_1.filter(
 # Supprimer les doublons éventuels
 df_silver_1 = df_silver_1.dropDuplicates()
 
-# Sauvegarde dans la couche Silver avec partitionnement par année
-df_silver_1.write.format("delta").mode(
-    "overwrite").partitionBy("year").save(silver_output_path_1)
-
+# Sauvegarde dans la couche Silver sous Iceberg avec partitionnement par année
+df_silver_1.writeTo(silver_output_path_1).using(
+    "iceberg").createOrReplace().partitionBy("year")
 
 # Lire les données de la couche Bronze
-df_bronze_2 = spark.read.format("delta").load(bronze_output_path_2)
+df_bronze_2 = spark.read.format("iceberg").load(bronze_output_path_2)
 
 # Transformation des colonnes et renommage
 df_silver_2 = df_bronze_2 \
@@ -61,15 +71,14 @@ df_silver_2 = df_silver_2.filter(
     df_silver_2['country_name'].isNotNull()
 )
 
-# Optionnel : supprimer les doublons
+# Supprimer les doublons
 df_silver_2 = df_silver_2.dropDuplicates()
 
-# Sauvegarder les données transformées dans la couche Silver
-df_silver_2.write.format("delta").mode("overwrite").save(silver_output_path_2)
-
+# Sauvegarder les données transformées dans la couche Silver sous Iceberg
+df_silver_2.writeTo(silver_output_path_2).using("iceberg").createOrReplace()
 
 # Lire les données de la couche Bronze
-df_bronze_3 = spark.read.format("delta").load(bronze_output_path_3)
+df_bronze_3 = spark.read.format("iceberg").load(bronze_output_path_3)
 
 # Transformation des colonnes et renommage
 df_silver_3 = df_bronze_3 \
@@ -105,8 +114,8 @@ df_silver_3 = df_silver_3.filter(
     df_silver_3['cause_of_death_description'].isNotNull()
 )
 
-# Optionnel : supprimer les doublons
+# Supprimer les doublons
 df_silver_3 = df_silver_3.dropDuplicates()
 
-# Sauvegarder les données transformées dans la couche Silver
-df_silver_3.write.format("delta").mode("overwrite").save(silver_output_path_3)
+# Sauvegarder les données transformées dans la couche Silver sous Iceberg
+df_silver_3.writeTo(silver_output_path_3).using("iceberg").createOrReplace()
